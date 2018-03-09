@@ -1,11 +1,11 @@
-Cyclic-Iterables
+Cyclic-Sequences
 ################
 
 
 Description
 ===========
 
-Iterables with cyclic indexing::
+Sequence type objects with cyclic indexing::
 
       ┌───────────────────────────┐
       │                           ▼
@@ -20,10 +20,10 @@ Content
 =======
 
 * class ``CyclicTuple``
-    An immutable cyclic iterable based on built-in class *tuple*.
+    An immutable cyclic sequence based on built-in class *tuple*.
 
 * class ``CyclicList``
-    A mutable cyclic iterable based on built-in class *list*.
+    A mutable cyclic sequence based on built-in class *list*.
     Gets two additional methods:
 
     * ``set_first(elt)``

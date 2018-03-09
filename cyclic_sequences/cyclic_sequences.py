@@ -35,6 +35,16 @@ A {classparent} with cyclic indexing::
     >>> print(foo)
     <{A}'a', 'b', 'c', 'd', 'e'{Z}>
 
+- Iterating is bounded by the number of elements::
+
+    >>> for x in foo: print(x)
+    ...
+    a
+    b
+    c
+    d
+    e
+
 - Accessing works like a regular {classparent}::
 
     >>> foo[1]
@@ -55,6 +65,8 @@ A {classparent} with cyclic indexing::
 
     >>> foo[1:4]
     {A}'b', 'c', 'd'{Z}
+    >>> foo[2:]
+    {A}'c', 'd', 'e'{Z}
     >>> foo[3:0:-1]
     {A}'d', 'c', 'b'{Z}
 
