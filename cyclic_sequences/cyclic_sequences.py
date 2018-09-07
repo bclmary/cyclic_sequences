@@ -2,9 +2,6 @@
 # -*- coding: utf8 -*-
 
 import itertools
-import abc
-
-# from itertools import cycle
 
 
 cyclic_doc = """
@@ -14,7 +11,9 @@ cyclic_doc = """
 
 Author : BCL Mary, based on a Chris Lawlor forum publication
 
-**Description**
+
+Description
+-----------
 
 A {classparent} with cyclic indexing::
 
@@ -119,16 +118,34 @@ Edge effects:
 - Indexing an empty {classname} returns an IndexError.
 
 - Indexing on a unique element returns always this element.
+
+
+Methods
+-------
+
+First element can be played with using specific methods:
+
+- **with_first**: return a new {classname} with given element at first
+  position::
+
+    >>> foo.with_first('c')
+    {classname}({A}c{M}d{M}e{M}a{M}b{Z})
+
+- **turned**: return a new {classname} with all elements indexes changed
+  of given step (default is 1 unit onward)::
+
+    >>> foo.turned()
+    {classname}({A}b{M}c{M}d{M}e{M}a{Z})
+    >>> foo.turned(-3)
+    {classname}({A}c{M}d{M}e{M}a{M}b{Z})
+    >>> foo.turned(10)
+    {classname}({A}a{M}b{M}c{M}d{M}e{Z})
 """
 
 
 mutable_cyclic_doc = (
     cyclic_doc
     + """
-**Methods**
-
-First element can be set using specific methods:
-
 - **set_first**: put given element at first position::
 
     >>> foo.set_first('c')
@@ -151,7 +168,7 @@ First element can be set using specific methods:
 )
 
 
-class AbstractCyclic(abc.ABC):
+class AbstractCyclic(object):
 
     _girf = NotImplemented  # get item return function
 
@@ -199,6 +216,39 @@ class AbstractCyclic(abc.ABC):
                 "{} indices must be integers or slices, "
                 "not {}".format(self.__class__, type(key))
             )
+
+    def turned(self, step=1):
+        """
+        foo.turned(step) -> new instance with first element the one from 
+        self at index 'step'.
+        """
+        try:
+            step = int(step) % self.__len__()
+        except ValueError:
+            raise TypeError(
+                "{} method 'turned' requires an integer but received a {}".format(
+                    self.__class__.__name, type(step)
+                )
+            )
+        return self._get_first_using_index(step)
+
+    def with_first(self, elt):
+        """
+        foo.with_first(elt) -> new instance with first occurence of 'elt' at first
+        position.
+        Raises ValueError if 'elt' is not present.
+        """
+        try:
+            index = self.index(elt)
+        except ValueError:
+            raise ValueError("{} is not in CyclicList".format(elt))
+        return self._get_first_using_index(index)
+
+    def _get_first_using_index(self, index):
+        return self.__class__(
+            super().__getitem__(slice(index, None, None))
+            + super().__getitem__(slice(None, index, None))
+        )
 
 
 class AbstractMutableCyclic(AbstractCyclic):
