@@ -27,14 +27,14 @@ A {classparent} with cyclic indexing::
 
 - Construction from any iterable::
 
-    >>> foo = {classname}(['a', 'b', 'c', 'd', 'e'])
+    >>> foo = {classname}(['a{M}b{M}c{M}d{M}e'])
     >>> foo
-    {classname}({A}'a', 'b', 'c', 'd', 'e'{Z})
+    {classname}({A}'a{M}b{M}c{M}d{M}e'{Z})
 
 - Gets its specific string representation with chevrons figuring cycling::
 
     >>> print(foo)
-    <{A}'a', 'b', 'c', 'd', 'e'{Z}>
+    <{A}'a{M}b{M}c{M}d{M}e'{Z}>
 
 - Iterating is bounded by the number of elements::
 
@@ -65,48 +65,48 @@ A {classparent} with cyclic indexing::
 - Slices work and return {classparent} objects::
 
     >>> foo[1:4]
-    {A}'b', 'c', 'd'{Z}
+    {A}'b{M}c{M}d'{Z}
     >>> foo[2:]
-    {A}'c', 'd', 'e'{Z}
+    {A}'c{M}d{M}e'{Z}
     >>> foo[3:0:-1]
-    {A}'d', 'c', 'b'{Z}
+    {A}'d{M}c{M}b'{Z}
 
 - Slices work also out of range with cyclic output::
 
     >>> foo[3:7]
-    {A}'d', 'e', 'a', 'b'{Z}
+    {A}'d{M}e{M}a{M}b'{Z}
     >>> foo[8:12]
-    {A}'d', 'e', 'a', 'b'{Z}
+    {A}'d{M}e{M}a{M}b'{Z}
     >>> foo[3:12]
-    {A}'d', 'e', 'a', 'b', 'c', 'd', 'e', 'a', 'b'{Z}
+    {A}'d{M}e{M}a{M}b{M}c{M}d{M}e{M}a{M}b'{Z}
     >>> foo[-2:2]
-    {A}'d', 'e', 'a', 'b'{Z}
+    {A}'d{M}e{M}a{M}b'{Z}
     >>> foo[-7:-3]
-    {A}'d', 'e', 'a', 'b'{Z}
+    {A}'d{M}e{M}a{M}b'{Z}
     >>> foo[-7:2]
-    {A}'d', 'e', 'a', 'b', 'c', 'd', 'e', 'a', 'b'{Z}
+    {A}'d{M}e{M}a{M}b{M}c{M}d{M}e{M}a{M}b'{Z}
 
 - Slices with non unitary steps work also::
 
     >>> foo[:7:2]
-    {A}'a', 'c', 'e', 'b'{Z}
+    {A}'a{M}c{M}e{M}b'{Z}
     >>> foo[:7:3]
-    {A}'a', 'd', 'b'{Z}
+    {A}'a{M}d{M}b'{Z}
     >>> foo[:7:5]
-    {A}'a', 'a'{Z}
+    {A}'a{M}a'{Z}
 
 - As well for reversed steps::
 
     >>> foo[1:-3:-1]
-    {A}'b', 'a', 'e', 'd'{Z}
+    {A}'b{M}a{M}e{M}d'{Z}
     >>> foo[-4:-8:-1]
-    {A}'b', 'a', 'e', 'd'{Z}
+    {A}'b{M}a{M}e{M}d'{Z}
     >>> foo[-4:-9:-2]
-    {A}'b', 'e', 'c'{Z}
+    {A}'b{M}e{M}c'{Z}
     >>> foo[-4:-9:-3]
-    {A}'b', 'd'{Z}
+    {A}'b{M}d'{Z}
     >>> foo[-5:-11:-5]
-    {A}'a', 'a'{Z}
+    {A}'a{M}a'{Z}
 
 - Incoherent slices return empty {classparent}::
 
@@ -118,11 +118,10 @@ Edge effects:
 - Indexing an empty {classname} returns an IndexError.
 
 - Indexing on a unique element returns always this element.
-
 """
 
 
-cyclic_doc_methods = """
+mutable_cyclic_doc = cyclic_doc + """
 **Methods**
 
 First element can be set using specific methods:
@@ -131,25 +130,24 @@ First element can be set using specific methods:
 
     >>> foo.set_first('c')
     >>> foo
-    {classname}({A}'c', 'd', 'e', 'a', 'b'{Z})
+    {classname}({A}'c{M}d{M}e{M}a{M}b'{Z})
 
 - **turn**: change all elements index of given step
   (default is 1 unit onward)::
 
     >>> foo.turn()
     >>> foo
-    {classname}({A}'d', 'e', 'a', 'b', 'c'{Z})
+    {classname}({A}'d{M}e{M}a{M}b{M}c'{Z})
     >>> foo.turn(-3)
     >>> foo
-    {classname}({A}'a', 'b', 'c', 'd', 'e'{Z})
+    {classname}({A}'a{M}b{M}c{M}d{M}e'{Z})
     >>> foo.turn(11)
     >>> foo
-    {classname}({A}'b', 'c', 'd', 'e', 'a'{Z})
-
+    {classname}({A}'b{M}c{M}d{M}e{M}a'{Z})
 """
 
 
-class CyclicBase(abc.ABC):
+class AbstractCyclic(abc.ABC):
 
     _girf = NotImplemented  # get item return function
 
@@ -199,7 +197,7 @@ class CyclicBase(abc.ABC):
             raise TypeError('{} indices must be integers or slices, '
                             'not {}'.format(self.__class__, type(key)))
 
-class CyclicBaseMethods(CyclicBase):
+class AbstractMutableCyclic(AbstractCyclic):
 
     def turn(self, step=1):
         """
@@ -235,28 +233,37 @@ class CyclicBaseMethods(CyclicBase):
             )
 
 
-class CyclicTuple(CyclicBase, tuple):
+class CyclicTuple(AbstractCyclic, tuple):
     _girf = tuple
     __doc__ = cyclic_doc.format(
         classname="CyclicTuple",
         classparent="tuple",
         A="(",
+        M="', '",
         Z=")",
         )
 
-class CyclicList(CyclicBaseMethods, list):
+class CyclicList(AbstractMutableCyclic, list):
     _girf = list
-    __doc__ = (cyclic_doc + cyclic_doc_methods).format(
+    __doc__ = mutable_cyclic_doc.format(
         classname="CyclicList",
         classparent="list",
         A="[",
+        M="', '",
         Z="]",
         )
 
 
 
-class CyclicStr(CyclicBase, str):
+class CyclicStr(AbstractCyclic, str):
 
+#    __doc__ = cyclic_doc.format(
+#        classname="CyclicStr",
+#        classparent="str",
+#        A="",
+#        M="",
+#        Z="",
+#        )
 
     """
     CyclicStr(object='') -> CyclicStr.
@@ -389,5 +396,4 @@ if __name__ == "__main__":
 
     doctest_result = doctest.testmod()
     print("\ndoctest >", doctest_result, "\n")
-
 
