@@ -252,6 +252,143 @@ class CyclicList(CyclicBase, list):
             + self._parent.__getitem__(self, slice(None, index, None))
             )
 
+class CyclicStr(CyclicBase, str):
+    """
+    CyclicStr(object='') -> CyclicStr.
+
+    Create a new cyclic string object from the given object using 
+    object.__str__() (if defined) or repr(object).
+
+    Author : BCL Mary
+
+    **Description**
+
+    A string with cyclic indexing::
+
+          ┌───────────────────────────┐
+          │                           ▼
+        ┏━│━┳━━━┳━━━┳━╍┅   ┅╍━┳━━━━━┳━━━┳━━━┓
+        ┃ ● ┃ 0 ┃ 1 ┃   ⋅⋅⋅   ┃ N-1 ┃ N ┃ ● ┃
+        ┗━━━┻━━━┻━━━┻━╍┅   ┅╍━┻━━━━━┻━━━┻━│━┛
+              ▲                           │
+              └───────────────────────────┘
+
+    - Classic string construction::
+
+        >>> foo = CyclicStr('abcde')
+        >>> foo
+        CyclicStr('abcde')
+
+    - Gets classic string representation::
+
+        >>> print(foo)
+        abcde
+
+    - Iterating is bounded by the number of elements::
+
+        >>> for x in foo: print(x)
+        ...
+        a
+        b
+        c
+        d
+        e
+
+    - Accessing works like a regular string::
+
+        >>> foo[1]
+        'b'
+        >>> foo[-4]
+        'b'
+
+    - Except indexes higher than length wraps around::
+
+        >>> foo[6]
+        'b'
+        >>> foo[11]
+        'b'
+        >>> foo[-9]
+        'b'
+
+    - Slices work and return string objects::
+
+        >>> foo[1:4]
+        'bcd'
+        >>> foo[2:]
+        'cde'
+        >>> foo[3:0:-1]
+        'dcb'
+
+    - Slices work also out of range with cyclic output::
+
+        >>> foo[3:7]
+        'deab'
+        >>> foo[8:12]
+        'deab'
+        >>> foo[3:12]
+        'deabcdeab'
+        >>> foo[-2:2]
+        'deab'
+        >>> foo[-7:-3]
+        'deab'
+        >>> foo[-7:2]
+        'deabcdeab'
+
+    - Slices with non unitary steps work also::
+
+        >>> foo[:7:2]
+        'aceb'
+        >>> foo[:7:3]
+        'adb'
+        >>> foo[:7:5]
+        'aa'
+
+    - As well for reversed steps::
+
+        >>> foo[1:-3:-1]
+        'baed'
+        >>> foo[-4:-8:-1]
+        'baed'
+        >>> foo[-4:-9:-2]
+        'bec'
+        >>> foo[-4:-9:-3]
+        'bd'
+        >>> foo[-5:-11:-5]
+        'aa'
+
+    - Incoherent slices return empty string::
+
+        >>> foo[11:5]
+        ''
+
+    Edge effects:
+
+    - Indexing an empty CyclicStr returns an IndexError.
+
+    - Indexing on a unique element returns always this element.
+    """
+
+    _parent = str
+
+    def __str__(self):
+        return self._parent.__str__(self)
+    
+    def __getitem__(self, key):
+        out = CyclicBase.__getitem__(self, key)
+        print(out)
+#        out = eval(out)
+#        print(out)
+        return "".join(out)
+
+    def turn(self, step=1):
+        CyclicList.turn(self, step)
+
+    def set_first(self, elt):
+        CyclicList.set_first(self, elt)
+
+    def _set_first_using_index(self, index):
+        CyclicList._set_first_using_index(self, index)
+
 ###############################################################################
 
 
