@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-
+import itertools
 from itertools import cycle
 
 
@@ -187,12 +187,10 @@ class CyclicBase(object):
                 # Redifine start and stop with equivalent and simpler indexes.
                 start = sim_start
                 stop = sim_start + length
-                out = []
-                for i, elt in enumerate(cycle(direction(self))):
-                    if i == stop:
-                        return self._parent(out)
-                    if (i - start) % step == 0 and i >= start:
-                        out.append(elt)
+                cyclic_self = itertools.cycle(direction(self))
+                iterator = ((i, next(cyclic_self)) for i in range(stop))
+                out = [elt for i, elt in iterator if i >= start and (i - start) % step == 0]
+                return self._parent(out)
             else:
                 return self._parent()
         else:
