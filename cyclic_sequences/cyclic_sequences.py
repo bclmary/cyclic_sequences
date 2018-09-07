@@ -151,17 +151,16 @@ First element can be set using specific methods:
 
 class CyclicBase(abc.ABC):
 
-    _parent = NotImplemented  # shortcut to main parent object
     _girf = NotImplemented  # get item return function
 
     def __repr__(self):
         return "%s(%s)" % (
             self.__class__.__name__,
-            self._parent.__repr__(self)
+            super().__repr__()
             )
 
     def __str__(self):
-        return "<" + self._parent.__repr__(self) + ">"
+        return "<" + super().__repr__() + ">"
 
     def __getitem__(self, key):
         """x.__getitem__(y) <==> x[y]"""
@@ -171,7 +170,7 @@ class CyclicBase(abc.ABC):
                 '{} is empty'.format(self.__class__.__name__)
                 )
         if isinstance(key, int):
-            return self._parent.__getitem__(self, key % N)
+            return super().__getitem__(key % N)
         elif isinstance(key, slice):
             start = key.start if key.start is not None else 0
             stop = key.stop if key.stop is not None else N
@@ -195,7 +194,7 @@ class CyclicBase(abc.ABC):
                 iterator = ((i, next(cyclic_self)) for i in range(stop))
                 return self._girf(elt for i, elt in iterator if i >= start and (i - start) % step == 0)
             else:
-                return self._parent()
+                return self._girf([])
         else:
             raise TypeError('{} indices must be integers or slices, '
                             'not {}'.format(self.__class__, type(key)))
@@ -231,14 +230,13 @@ class CyclicBaseMethods(CyclicBase):
 
     def _set_first_using_index(self, index):
         self.__init__(
-            self._parent.__getitem__(self, slice(index, None, None))
-            + self._parent.__getitem__(self, slice(None, index, None))
+            super().__getitem__(slice(index, None, None))
+            + super().__getitem__(slice(None, index, None))
             )
 
 
 class CyclicTuple(CyclicBase, tuple):
-    _parent = tuple
-    _girf = _parent
+    _girf = tuple
     __doc__ = cyclic_doc.format(
         classname="CyclicTuple",
         classparent="tuple",
@@ -247,8 +245,7 @@ class CyclicTuple(CyclicBase, tuple):
         )
 
 class CyclicList(CyclicBaseMethods, list):
-    _parent = list
-    _girf = _parent
+    _girf = list
     __doc__ = (cyclic_doc + cyclic_doc_methods).format(
         classname="CyclicList",
         classparent="list",
@@ -376,11 +373,10 @@ class CyclicStr(CyclicBase, str):
     - Indexing on a unique element returns always this element.
     """
 
-    _parent = str
     _girf = "".join  # get item return function
 
     def __str__(self):
-        return self._parent.__str__(self)
+        return str.__str__(self)
 
 
 
