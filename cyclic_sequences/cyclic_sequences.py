@@ -3,14 +3,8 @@
 
 import itertools
 import abc
-#from itertools import cycle
 
-"""
-CyclicStr(object='') -> CyclicStr.
-
-Create a new cyclic string object from the given object using 
-object.__str__() (if defined) or repr(object).
-"""
+# from itertools import cycle
 
 
 cyclic_doc = """
@@ -128,7 +122,9 @@ Edge effects:
 """
 
 
-mutable_cyclic_doc = cyclic_doc + """
+mutable_cyclic_doc = (
+    cyclic_doc
+    + """
 **Methods**
 
 First element can be set using specific methods:
@@ -152,6 +148,7 @@ First element can be set using specific methods:
     >>> foo
     {classname}({A}b{M}c{M}d{M}e{M}a{Z})
 """
+)
 
 
 class AbstractCyclic(abc.ABC):
@@ -159,10 +156,7 @@ class AbstractCyclic(abc.ABC):
     _girf = NotImplemented  # get item return function
 
     def __repr__(self):
-        return "%s(%s)" % (
-            self.__class__.__name__,
-            super().__repr__()
-            )
+        return "%s(%s)" % (self.__class__.__name__, super().__repr__())
 
     def __str__(self):
         return "<" + super().__repr__() + ">"
@@ -171,9 +165,7 @@ class AbstractCyclic(abc.ABC):
         """x.__getitem__(y) <==> x[y]"""
         N = self.__len__()
         if N == 0:
-            raise IndexError(
-                '{} is empty'.format(self.__class__.__name__)
-                )
+            raise IndexError("{} is empty".format(self.__class__.__name__))
         if isinstance(key, int):
             return super().__getitem__(key % N)
         elif isinstance(key, slice):
@@ -197,15 +189,19 @@ class AbstractCyclic(abc.ABC):
                 stop = sim_start + length
                 cyclic_self = itertools.cycle(direction(self))
                 iterator = ((i, next(cyclic_self)) for i in range(stop))
-                return self._girf(elt for i, elt in iterator if i >= start and (i - start) % step == 0)
+                return self._girf(
+                    elt for i, elt in iterator if i >= start and (i - start) % step == 0
+                )
             else:
                 return self._girf([])
         else:
-            raise TypeError('{} indices must be integers or slices, '
-                            'not {}'.format(self.__class__, type(key)))
+            raise TypeError(
+                "{} indices must be integers or slices, "
+                "not {}".format(self.__class__, type(key))
+            )
+
 
 class AbstractMutableCyclic(AbstractCyclic):
-
     def turn(self, step=1):
         """
         foo.turn(step) -> None – change elements index of given step
@@ -216,9 +212,10 @@ class AbstractMutableCyclic(AbstractCyclic):
             step = int(step) % self.__len__()
         except ValueError:
             raise TypeError(
-                "{} method 'turn' requires an integer but received a {}"
-                .format(self.__class__.__name, type(step))
+                "{} method 'turn' requires an integer but received a {}".format(
+                    self.__class__.__name, type(step)
                 )
+            )
         self._set_first_using_index(step)
 
     def set_first(self, elt):
@@ -237,7 +234,7 @@ class AbstractMutableCyclic(AbstractCyclic):
         self.__init__(
             super().__getitem__(slice(index, None, None))
             + super().__getitem__(slice(None, index, None))
-            )
+        )
 
 
 class CyclicTuple(AbstractCyclic, tuple):
@@ -253,7 +250,7 @@ class CyclicTuple(AbstractCyclic, tuple):
         init_desc="iterable",
         str_desc="its specific string representation with chevrons figuring cycling",
         str_out="<('a', 'b', 'c', 'd', 'e')>",
-        )
+    )
 
 
 class CyclicList(AbstractMutableCyclic, list):
@@ -269,7 +266,7 @@ class CyclicList(AbstractMutableCyclic, list):
         init_desc="iterable",
         str_desc="its specific string representation with chevrons figuring cycling",
         str_out="<['a', 'b', 'c', 'd', 'e']>",
-        )
+    )
 
 
 class CyclicStr(AbstractCyclic, str):
@@ -285,11 +282,10 @@ class CyclicStr(AbstractCyclic, str):
         init_desc="object using object.__str__()",
         str_desc="classic string representation",
         str_out="abcde",
-        )
+    )
 
     def __str__(self):
         return str.__str__(self)
-
 
 
 ###############################################################################
@@ -301,6 +297,3 @@ if __name__ == "__main__":
 
     doctest_result = doctest.testmod()
     print("\ndoctest >", doctest_result, "\n")
-
-    print(CyclicStr.__doc__)
-
