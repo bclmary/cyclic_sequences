@@ -5,11 +5,18 @@ import itertools
 import abc
 #from itertools import cycle
 
+"""
+CyclicStr(object='') -> CyclicStr.
+
+Create a new cyclic string object from the given object using 
+object.__str__() (if defined) or repr(object).
+"""
+
 
 cyclic_doc = """
 {classname}() -> new empty {classname}.
 
-{classname}(iterable) -> new {classname} initialized from iterable’s items.
+{classname}({init}) -> new {classname} initialized from {init_desc}.
 
 Author : BCL Mary, based on a Chris Lawlor forum publication
 
@@ -25,16 +32,16 @@ A {classparent} with cyclic indexing::
           ▲                           │
           └───────────────────────────┘
 
-- Construction from any iterable::
+- Construction from any {init_desc}::
 
-    >>> foo = {classname}(['a{M}b{M}c{M}d{M}e'])
+    >>> foo = {classname}({A}a{M}b{M}c{M}d{M}e{Z})
     >>> foo
-    {classname}({A}'a{M}b{M}c{M}d{M}e'{Z})
+    {classname}({A}a{M}b{M}c{M}d{M}e{Z})
 
-- Gets its specific string representation with chevrons figuring cycling::
+- Gets {str_desc}::
 
     >>> print(foo)
-    <{A}'a{M}b{M}c{M}d{M}e'{Z}>
+    {str_out}
 
 - Iterating is bounded by the number of elements::
 
@@ -65,53 +72,53 @@ A {classparent} with cyclic indexing::
 - Slices work and return {classparent} objects::
 
     >>> foo[1:4]
-    {A}'b{M}c{M}d'{Z}
+    {A}b{M}c{M}d{Z}
     >>> foo[2:]
-    {A}'c{M}d{M}e'{Z}
+    {A}c{M}d{M}e{Z}
     >>> foo[3:0:-1]
-    {A}'d{M}c{M}b'{Z}
+    {A}d{M}c{M}b{Z}
 
 - Slices work also out of range with cyclic output::
 
     >>> foo[3:7]
-    {A}'d{M}e{M}a{M}b'{Z}
+    {A}d{M}e{M}a{M}b{Z}
     >>> foo[8:12]
-    {A}'d{M}e{M}a{M}b'{Z}
+    {A}d{M}e{M}a{M}b{Z}
     >>> foo[3:12]
-    {A}'d{M}e{M}a{M}b{M}c{M}d{M}e{M}a{M}b'{Z}
+    {A}d{M}e{M}a{M}b{M}c{M}d{M}e{M}a{M}b{Z}
     >>> foo[-2:2]
-    {A}'d{M}e{M}a{M}b'{Z}
+    {A}d{M}e{M}a{M}b{Z}
     >>> foo[-7:-3]
-    {A}'d{M}e{M}a{M}b'{Z}
+    {A}d{M}e{M}a{M}b{Z}
     >>> foo[-7:2]
-    {A}'d{M}e{M}a{M}b{M}c{M}d{M}e{M}a{M}b'{Z}
+    {A}d{M}e{M}a{M}b{M}c{M}d{M}e{M}a{M}b{Z}
 
 - Slices with non unitary steps work also::
 
     >>> foo[:7:2]
-    {A}'a{M}c{M}e{M}b'{Z}
+    {A}a{M}c{M}e{M}b{Z}
     >>> foo[:7:3]
-    {A}'a{M}d{M}b'{Z}
+    {A}a{M}d{M}b{Z}
     >>> foo[:7:5]
-    {A}'a{M}a'{Z}
+    {A}a{M}a{Z}
 
 - As well for reversed steps::
 
     >>> foo[1:-3:-1]
-    {A}'b{M}a{M}e{M}d'{Z}
+    {A}b{M}a{M}e{M}d{Z}
     >>> foo[-4:-8:-1]
-    {A}'b{M}a{M}e{M}d'{Z}
+    {A}b{M}a{M}e{M}d{Z}
     >>> foo[-4:-9:-2]
-    {A}'b{M}e{M}c'{Z}
+    {A}b{M}e{M}c{Z}
     >>> foo[-4:-9:-3]
-    {A}'b{M}d'{Z}
+    {A}b{M}d{Z}
     >>> foo[-5:-11:-5]
-    {A}'a{M}a'{Z}
+    {A}a{M}a{Z}
 
 - Incoherent slices return empty {classparent}::
 
     >>> foo[11:5]
-    {A}{Z}
+    {empty}
 
 Edge effects:
 
@@ -130,20 +137,20 @@ First element can be set using specific methods:
 
     >>> foo.set_first('c')
     >>> foo
-    {classname}({A}'c{M}d{M}e{M}a{M}b'{Z})
+    {classname}({A}c{M}d{M}e{M}a{M}b{Z})
 
 - **turn**: change all elements index of given step
   (default is 1 unit onward)::
 
     >>> foo.turn()
     >>> foo
-    {classname}({A}'d{M}e{M}a{M}b{M}c'{Z})
+    {classname}({A}d{M}e{M}a{M}b{M}c{Z})
     >>> foo.turn(-3)
     >>> foo
-    {classname}({A}'a{M}b{M}c{M}d{M}e'{Z})
+    {classname}({A}a{M}b{M}c{M}d{M}e{Z})
     >>> foo.turn(11)
     >>> foo
-    {classname}({A}'b{M}c{M}d{M}e{M}a'{Z})
+    {classname}({A}b{M}c{M}d{M}e{M}a{Z})
 """
 
 
@@ -238,149 +245,47 @@ class CyclicTuple(AbstractCyclic, tuple):
     __doc__ = cyclic_doc.format(
         classname="CyclicTuple",
         classparent="tuple",
-        A="(",
+        A="('",
         M="', '",
-        Z=")",
+        Z="')",
+        empty="()",
+        init="iterable",
+        init_desc="iterable",
+        str_desc="its specific string representation with chevrons figuring cycling",
+        str_out="<('a', 'b', 'c', 'd', 'e')>",
         )
+
 
 class CyclicList(AbstractMutableCyclic, list):
     _girf = list
     __doc__ = mutable_cyclic_doc.format(
         classname="CyclicList",
         classparent="list",
-        A="[",
+        A="['",
         M="', '",
-        Z="]",
+        Z="']",
+        empty="[]",
+        init="iterable",
+        init_desc="iterable",
+        str_desc="its specific string representation with chevrons figuring cycling",
+        str_out="<['a', 'b', 'c', 'd', 'e']>",
         )
 
 
-
 class CyclicStr(AbstractCyclic, str):
-
-#    __doc__ = cyclic_doc.format(
-#        classname="CyclicStr",
-#        classparent="str",
-#        A="",
-#        M="",
-#        Z="",
-#        )
-
-    """
-    CyclicStr(object='') -> CyclicStr.
-
-    Create a new cyclic string object from the given object using 
-    object.__str__() (if defined) or repr(object).
-
-    Author : BCL Mary
-
-    **Description**
-
-    A string with cyclic indexing::
-
-          ┌───────────────────────────┐
-          │                           ▼
-        ┏━│━┳━━━┳━━━┳━╍┅   ┅╍━┳━━━━━┳━━━┳━━━┓
-        ┃ ● ┃ 0 ┃ 1 ┃   ⋅⋅⋅   ┃ N-1 ┃ N ┃ ● ┃
-        ┗━━━┻━━━┻━━━┻━╍┅   ┅╍━┻━━━━━┻━━━┻━│━┛
-              ▲                           │
-              └───────────────────────────┘
-
-    - Classic string construction::
-
-        >>> foo = CyclicStr('abcde')
-        >>> foo
-        CyclicStr('abcde')
-
-    - Gets classic string representation::
-
-        >>> print(foo)
-        abcde
-
-    - Iterating is bounded by the number of elements::
-
-        >>> for x in foo: print(x)
-        ...
-        a
-        b
-        c
-        d
-        e
-
-    - Accessing works like a regular string::
-
-        >>> foo[1]
-        'b'
-        >>> foo[-4]
-        'b'
-
-    - Except indexes higher than length wraps around::
-
-        >>> foo[6]
-        'b'
-        >>> foo[11]
-        'b'
-        >>> foo[-9]
-        'b'
-
-    - Slices work and return string objects::
-
-        >>> foo[1:4]
-        'bcd'
-        >>> foo[2:]
-        'cde'
-        >>> foo[3:0:-1]
-        'dcb'
-
-    - Slices work also out of range with cyclic output::
-
-        >>> foo[3:7]
-        'deab'
-        >>> foo[8:12]
-        'deab'
-        >>> foo[3:12]
-        'deabcdeab'
-        >>> foo[-2:2]
-        'deab'
-        >>> foo[-7:-3]
-        'deab'
-        >>> foo[-7:2]
-        'deabcdeab'
-
-    - Slices with non unitary steps work also::
-
-        >>> foo[:7:2]
-        'aceb'
-        >>> foo[:7:3]
-        'adb'
-        >>> foo[:7:5]
-        'aa'
-
-    - As well for reversed steps::
-
-        >>> foo[1:-3:-1]
-        'baed'
-        >>> foo[-4:-8:-1]
-        'baed'
-        >>> foo[-4:-9:-2]
-        'bec'
-        >>> foo[-4:-9:-3]
-        'bd'
-        >>> foo[-5:-11:-5]
-        'aa'
-
-    - Incoherent slices return empty string::
-
-        >>> foo[11:5]
-        ''
-
-    Edge effects:
-
-    - Indexing an empty CyclicStr returns an IndexError.
-
-    - Indexing on a unique element returns always this element.
-    """
-
-    _girf = "".join  # get item return function
+    _girf = "".join
+    __doc__ = cyclic_doc.format(
+        classname="CyclicStr",
+        classparent="string",
+        A="'",
+        M="",
+        Z="'",
+        empty="''",
+        init="object",
+        init_desc="object using object.__str__()",
+        str_desc="classic string representation",
+        str_out="abcde",
+        )
 
     def __str__(self):
         return str.__str__(self)
@@ -396,4 +301,6 @@ if __name__ == "__main__":
 
     doctest_result = doctest.testmod()
     print("\ndoctest >", doctest_result, "\n")
+
+    print(CyclicStr.__doc__)
 
