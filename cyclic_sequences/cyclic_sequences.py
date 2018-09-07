@@ -254,7 +254,7 @@ class AbstractCyclic(object):
 class AbstractMutableCyclic(AbstractCyclic):
     def turn(self, step=1):
         """
-        foo.turn(step) -> None – change elements index of given step
+        foo.turn(step) -> None – change elements indexes of given step
         (move higher index to lower index with poisitive value).
         Equivalent to set at first position element at index 'step'.
         """

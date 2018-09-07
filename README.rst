@@ -19,23 +19,49 @@ Sequence type objects with cyclic indexing::
 Content
 =======
 
-* class ``CyclicTuple``
+:CyclicTuple:
+    Class object.
     An immutable cyclic sequence based on built-in class *tuple*.
 
-* class ``CyclicList``
+:CyclicList:
+    Class object.
     A mutable cyclic sequence based on built-in class *list*.
-    Gets two additional methods:
 
-    * ``set_first(elt)``
-        Put given element at first position.
-    * ``turn(step)``
-        Change all elements index of given step (default is 1 unit onward).
+:CyclicStr:
+    Class object.
+    An immutable cyclic sequence based on built-in class *str*.
+
+
+Immutable class methods
+-----------------------
+
+:with_first:
+    foo.with_first(elt) -> new instance
+    New instance of 'foo' with first occurence of 'elt' at first position.
+    Raises ValueError if 'elt' is not present.
+
+:turned:
+    foo.turned(step) -> new instance 
+    New instance of 'foo' with first element the one from 'foo' at index 'step'.
+
+
+Mutable class methods
+---------------------
+
+:set_first:
+    foo.set_first(elt) -> None
+    Set first occurence of 'elt' at first position.
+    Raises ValueError if 'elt' is not present.
+
+:turn:
+    foo.turn(step) -> None
+    Change all elements indexes of given step (default is 1 unit onward)
 
 
 Examples
 ========
 
-The following examples are using CyclicList class for demonstration. CyclicTuple class gets same behaviours.
+The following examples are using CyclicList class for demonstration. CyclicTuple and CyclicStr classes get similar behaviours.
 
 - Construction from any iterable::
 
@@ -118,3 +144,41 @@ Edge effects:
 - Indexing an empty CyclicList returns an IndexError.
 
 - Indexing on a unique element returns always this element.
+
+
+First element can be played with using specific methods:
+
+- **with_first**: return a new CyclicList with given element at first
+  position::
+
+    >>> foo.with_first('c')
+    CyclicList(['c', 'd', 'e', 'a', 'b'])
+
+- **turned**: return a new CyclicList with all elements indexes changed
+  of given step (default is 1 unit onward)::
+
+    >>> foo.turned()
+    CyclicList(['b', 'c', 'd', 'e', 'a'])
+    >>> foo.turned(-3)
+    CyclicList(['c', 'd', 'e', 'a', 'b'])
+    >>> foo.turned(10)
+    CyclicList(['a', 'b', 'c', 'd', 'e'])
+
+- **set_first**: put given element at first position::
+
+    >>> foo.set_first('c')
+    >>> foo
+    CyclicList(['c', 'd', 'e', 'a', 'b'])
+
+- **turn**: change all elements index of given step
+  (default is 1 unit onward)::
+
+    >>> foo.turn()
+    >>> foo
+    CyclicList(['d', 'e', 'a', 'b', 'c'])
+    >>> foo.turn(-3)
+    >>> foo
+    CyclicList(['a', 'b', 'c', 'd', 'e'])
+    >>> foo.turn(11)
+    >>> foo
+    CyclicList(['b', 'c', 'd', 'e', 'a'])
