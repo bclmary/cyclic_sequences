@@ -2,7 +2,8 @@
 # -*- coding: utf8 -*-
 
 import itertools
-from itertools import cycle
+import abc
+#from itertools import cycle
 
 
 cyclic_doc = """
@@ -148,7 +149,10 @@ First element can be set using specific methods:
 """
 
 
-class CyclicBase(object):
+class CyclicBase(abc.ABC):
+
+    _parent = NotImplemented  # shortcut to main parent object
+    _girf = NotImplemented  # get item return function
 
     def __repr__(self):
         return "%s(%s)" % (
@@ -189,33 +193,14 @@ class CyclicBase(object):
                 stop = sim_start + length
                 cyclic_self = itertools.cycle(direction(self))
                 iterator = ((i, next(cyclic_self)) for i in range(stop))
-                out = [elt for i, elt in iterator if i >= start and (i - start) % step == 0]
-                return self._parent(out)
+                return self._girf(elt for i, elt in iterator if i >= start and (i - start) % step == 0)
             else:
                 return self._parent()
         else:
             raise TypeError('{} indices must be integers or slices, '
                             'not {}'.format(self.__class__, type(key)))
 
-
-class CyclicTuple(CyclicBase, tuple):
-    _parent = tuple
-    __doc__ = cyclic_doc.format(
-        classname="CyclicTuple",
-        classparent="tuple",
-        A="(",
-        Z=")",
-        )
-
-
-class CyclicList(CyclicBase, list):
-    _parent = list
-    __doc__ = (cyclic_doc + cyclic_doc_methods).format(
-        classname="CyclicList",
-        classparent="list",
-        A="[",
-        Z="]",
-        )
+class CyclicBaseMethods(CyclicBase):
 
     def turn(self, step=1):
         """
@@ -250,7 +235,32 @@ class CyclicList(CyclicBase, list):
             + self._parent.__getitem__(self, slice(None, index, None))
             )
 
+
+class CyclicTuple(CyclicBase, tuple):
+    _parent = tuple
+    _girf = _parent
+    __doc__ = cyclic_doc.format(
+        classname="CyclicTuple",
+        classparent="tuple",
+        A="(",
+        Z=")",
+        )
+
+class CyclicList(CyclicBaseMethods, list):
+    _parent = list
+    _girf = _parent
+    __doc__ = (cyclic_doc + cyclic_doc_methods).format(
+        classname="CyclicList",
+        classparent="list",
+        A="[",
+        Z="]",
+        )
+
+
+
 class CyclicStr(CyclicBase, str):
+
+
     """
     CyclicStr(object='') -> CyclicStr.
 
@@ -367,25 +377,12 @@ class CyclicStr(CyclicBase, str):
     """
 
     _parent = str
+    _girf = "".join  # get item return function
 
     def __str__(self):
         return self._parent.__str__(self)
-    
-    def __getitem__(self, key):
-        out = CyclicBase.__getitem__(self, key)
-        print(out)
-#        out = eval(out)
-#        print(out)
-        return "".join(out)
 
-    def turn(self, step=1):
-        CyclicList.turn(self, step)
 
-    def set_first(self, elt):
-        CyclicList.set_first(self, elt)
-
-    def _set_first_using_index(self, index):
-        CyclicList._set_first_using_index(self, index)
 
 ###############################################################################
 
