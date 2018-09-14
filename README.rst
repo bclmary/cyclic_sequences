@@ -1,11 +1,14 @@
 Cyclic-Sequences
 ################
 
+Sequence type objects with cyclic indexing::
 
 Description
 ===========
 
-Sequence type objects with cyclic indexing::
+The cyclic indexation works as for usual sequences, with the possible use 
+of negative indexes. But it makes a jump-back to the beginning (or the end for 
+negative indexes) if the index is higher than the length of the sequence::
 
       ┌───────────────────────────┐
       │                           ▼
@@ -41,8 +44,9 @@ Immutable class methods
     Raises ValueError if 'elt' is not present.
 
 :turned:
-    foo.turned(step) -> new instance 
-    New instance of 'foo' with first element the one from 'foo' at index 'step'.
+    foo.turned(step) -> new instance
+    New instance of 'foo' with all elements shifted of given step.
+    (default is 1 unit onward).
 
 
 Mutable class methods
@@ -56,6 +60,7 @@ Mutable class methods
 :turn:
     foo.turn(step) -> None
     Change all elements indexes of given step (default is 1 unit onward)
+    Equivalent to set at first position the element at index 'step'.
 
 
 Examples

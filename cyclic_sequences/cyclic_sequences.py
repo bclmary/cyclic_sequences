@@ -1,22 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-import itertools
+"""Sequence type objects with cyclic indexing.
 
-
-cyclic_doc = """
-{classname}() -> new empty {classname}.
-
-{classname}({init}) -> new {classname} initialized from {init_desc}.
-
-Author : BCL Mary, based on a Chris Lawlor forum publication
-
-
-Description
------------
-
-A {classparent} with cyclic indexing::
-
+The cyclic indexation works as for usual sequences, with the possible use 
+of negative indexes. But it makes a jump-back to the beginning (or the end for 
+negative indexes) if the index is higher than the length of the sequence::
+    
       ┌───────────────────────────┐
       │                           ▼
     ┏━│━┳━━━┳━━━┳━╍┅   ┅╍━┳━━━━━┳━━━┳━━━┓
@@ -25,28 +15,44 @@ A {classparent} with cyclic indexing::
           ▲                           │
           └───────────────────────────┘
 
-- Construction from any {init_desc}::
 
-    >>> foo = {classname}({A}a{M}b{M}c{M}d{M}e{Z})
+.. note:: Based on a Chris Lawlor forum publication
+
+Content
+=======
+
+:CyclicTuple:
+    Class object.
+    An immutable cyclic sequence based on built-in class *tuple*.
+
+:CyclicList:
+    Class object.
+    A mutable cyclic sequence based on built-in class *list*.
+
+:CyclicStr:
+    Class object.
+    An immutable cyclic sequence based on built-in class *str*.
+
+Examples
+========
+
+The following examples are using ``CyclicList`` for demonstration. 
+``CyclicTuple`` and ``CyclicStr`` get similar behaviours.
+
+- Construction from any iterable::
+
+    >>> foo = CyclicList(['a', 'b', 'c', 'd', 'e'])
     >>> foo
-    {classname}({A}a{M}b{M}c{M}d{M}e{Z})
+    CyclicList(['a', 'b', 'c', 'd', 'e'])
 
-- Gets {str_desc}::
+- Gets its specific string representation with chevrons figuring cycling::
 
     >>> print(foo)
-    {str_out}
+    <['a', 'b', 'c', 'd', 'e']>
 
-- Iterating is bounded by the number of elements::
+.. note:: This not true for ``CyclicStr``.
 
-    >>> for x in foo: print(x)
-    ...
-    a
-    b
-    c
-    d
-    e
-
-- Accessing works like a regular {classparent}::
+- Accessing works like a regular list::
 
     >>> foo[1]
     'b'
@@ -62,124 +68,126 @@ A {classparent} with cyclic indexing::
     >>> foo[-9]
     'b'
 
-- Slices work and return {classparent} objects::
+- Slices work and return list objects::
 
     >>> foo[1:4]
-    {A}b{M}c{M}d{Z}
-    >>> foo[2:]
-    {A}c{M}d{M}e{Z}
+    ['b', 'c', 'd']
     >>> foo[3:0:-1]
-    {A}d{M}c{M}b{Z}
+    ['d', 'c', 'b']
 
 - Slices work also out of range with cyclic output::
 
+    >>> len(foo)
+    5
     >>> foo[3:7]
-    {A}d{M}e{M}a{M}b{Z}
+    ['d', 'e', 'a', 'b']
     >>> foo[8:12]
-    {A}d{M}e{M}a{M}b{Z}
+    ['d', 'e', 'a', 'b']
     >>> foo[3:12]
-    {A}d{M}e{M}a{M}b{M}c{M}d{M}e{M}a{M}b{Z}
+    ['d', 'e', 'a', 'b', 'c', 'd', 'e', 'a', 'b']
     >>> foo[-2:2]
-    {A}d{M}e{M}a{M}b{Z}
+    ['d', 'e', 'a', 'b']
     >>> foo[-7:-3]
-    {A}d{M}e{M}a{M}b{Z}
+    ['d', 'e', 'a', 'b']
     >>> foo[-7:2]
-    {A}d{M}e{M}a{M}b{M}c{M}d{M}e{M}a{M}b{Z}
+    ['d', 'e', 'a', 'b', 'c', 'd', 'e', 'a', 'b']
 
 - Slices with non unitary steps work also::
 
     >>> foo[:7:2]
-    {A}a{M}c{M}e{M}b{Z}
+    ['a', 'c', 'e', 'b']
     >>> foo[:7:3]
-    {A}a{M}d{M}b{Z}
+    ['a', 'd', 'b']
     >>> foo[:7:5]
-    {A}a{M}a{Z}
+    ['a', 'a']
 
 - As well for reversed steps::
 
     >>> foo[1:-3:-1]
-    {A}b{M}a{M}e{M}d{Z}
+    ['b', 'a', 'e', 'd']
     >>> foo[-4:-8:-1]
-    {A}b{M}a{M}e{M}d{Z}
+    ['b', 'a', 'e', 'd']
     >>> foo[-4:-9:-2]
-    {A}b{M}e{M}c{Z}
+    ['b', 'e', 'c']
     >>> foo[-4:-9:-3]
-    {A}b{M}d{Z}
+    ['b', 'd']
     >>> foo[-5:-11:-5]
-    {A}a{M}a{Z}
+    ['a', 'a']
 
-- Incoherent slices return empty {classparent}::
+- Incoherent slices return empty list::
 
     >>> foo[11:5]
-    {empty}
+    []
 
-Edge effects:
+.. note:: Indexing an empty CyclicList returns an IndexError.
 
-- Indexing an empty {classname} returns an IndexError.
+.. note:: Indexing on a unique element returns always this element.
 
-- Indexing on a unique element returns always this element.
-
-
-Methods
--------
 
 First element can be played with using specific methods:
 
-- **with_first**: return a new {classname} with given element at first
+- **with_first**: return a new CyclicList with given element at first
   position::
 
     >>> foo.with_first('c')
-    {classname}({A}c{M}d{M}e{M}a{M}b{Z})
+    CyclicList(['c', 'd', 'e', 'a', 'b'])
 
-- **turned**: return a new {classname} with all elements indexes changed
+- **turned**: return a new CyclicList with all elements indexes changed
   of given step (default is 1 unit onward)::
 
     >>> foo.turned()
-    {classname}({A}b{M}c{M}d{M}e{M}a{Z})
+    CyclicList(['b', 'c', 'd', 'e', 'a'])
     >>> foo.turned(-3)
-    {classname}({A}c{M}d{M}e{M}a{M}b{Z})
+    CyclicList(['c', 'd', 'e', 'a', 'b'])
     >>> foo.turned(10)
-    {classname}({A}a{M}b{M}c{M}d{M}e{Z})
-"""
+    CyclicList(['a', 'b', 'c', 'd', 'e'])
 
-
-mutable_cyclic_doc = (
-    cyclic_doc
-    + """
 - **set_first**: put given element at first position::
 
     >>> foo.set_first('c')
     >>> foo
-    {classname}({A}c{M}d{M}e{M}a{M}b{Z})
+    CyclicList(['c', 'd', 'e', 'a', 'b'])
 
 - **turn**: change all elements index of given step
   (default is 1 unit onward)::
 
     >>> foo.turn()
     >>> foo
-    {classname}({A}d{M}e{M}a{M}b{M}c{Z})
+    CyclicList(['d', 'e', 'a', 'b', 'c'])
     >>> foo.turn(-3)
     >>> foo
-    {classname}({A}a{M}b{M}c{M}d{M}e{Z})
+    CyclicList(['a', 'b', 'c', 'd', 'e'])
     >>> foo.turn(11)
     >>> foo
-    {classname}({A}b{M}c{M}d{M}e{M}a{Z})
+    CyclicList(['b', 'c', 'd', 'e', 'a'])
+
+.. note:: ``set_first`` and ``turn`` methods are only available for ``CyclicList``, 
+          since other cyclic classes are immutables.
+    
+    
 """
-)
+
+import itertools
 
 
 class AbstractCyclic(object):
+    """Abstract class that implement cyclic indexing."""
 
     _girf = NotImplemented  # get item return function
 
     def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__, super().__repr__())
+        return "{}({})".format(self.__class__.__name__, super().__repr__())
 
     def __str__(self):
-        return "<" + super().__repr__() + ">"
+        return "<{}>".format(super().__repr__())
 
     def __getitem__(self, key):
-        """x.__getitem__(y) <==> x[y]"""
+        """Get-item special method with cyclic indexing.
+        
+        Recall that:
+            x.__getitem__(i) <==> x[i]
+            x.__getitem__(slice) <==> x[i:j:k]
+        """
         N = self.__len__()
         if N == 0:
             raise IndexError("{} is empty".format(self.__class__.__name__))
@@ -220,7 +228,7 @@ class AbstractCyclic(object):
     def turned(self, step=1):
         """
         foo.turned(step) -> new instance with first element the one from 
-        self at index 'step'.
+        foo at index 'step'.
         """
         try:
             step = int(step) % self.__len__()
@@ -252,6 +260,8 @@ class AbstractCyclic(object):
 
 
 class AbstractMutableCyclic(AbstractCyclic):
+    """Abstract class that add methods for mutable cyclic sequence objects."""
+
     def turn(self, step=1):
         """
         foo.turn(step) -> None – change elements indexes of given step
@@ -288,51 +298,70 @@ class AbstractMutableCyclic(AbstractCyclic):
 
 
 class CyclicTuple(AbstractCyclic, tuple):
+    """An immutable cyclic sequence based on built-in class *tuple*.
+
+    See help of module cyclic_sequences for advanced description.
+    
+    Usage::
+        >>> foo = CyclicList(['a', 'b', 'c', 'd', 'e'])
+        >>> foo
+        CyclicList(['a', 'b', 'c', 'd', 'e'])
+        >>> print(foo)
+        <['a', 'b', 'c', 'd', 'e']>
+        >>> foo[3:7]
+        ['d', 'e', 'a', 'b']
+        >>> foo.set_first('d')
+        >>> foo
+        CyclicList(['d', 'e', 'a', 'b', 'c'])
+    
+    
+    """
+
     _girf = tuple
-    __doc__ = cyclic_doc.format(
-        classname="CyclicTuple",
-        classparent="tuple",
-        A="('",
-        M="', '",
-        Z="')",
-        empty="()",
-        init="iterable",
-        init_desc="iterable",
-        str_desc="its specific string representation with chevrons figuring cycling",
-        str_out="<('a', 'b', 'c', 'd', 'e')>",
-    )
 
 
 class CyclicList(AbstractMutableCyclic, list):
+    """A mutable cyclic sequence based on built-in class *list*.
+    
+    See help of module cyclic_sequences for advanced description.
+    
+    Usage::
+        >>> foo = CyclicTuple(['a', 'b', 'c', 'd', 'e'])
+        >>> foo
+        CyclicTuple(('a', 'b', 'c', 'd', 'e'))
+        >>> print(foo)
+        <('a', 'b', 'c', 'd', 'e')>
+        >>> foo[3:7]
+        ('d', 'e', 'a', 'b')
+        >>> foo.with_first('d')
+        CyclicTuple(('d', 'e', 'a', 'b', 'c'))
+    
+    
+    """
+
     _girf = list
-    __doc__ = mutable_cyclic_doc.format(
-        classname="CyclicList",
-        classparent="list",
-        A="['",
-        M="', '",
-        Z="']",
-        empty="[]",
-        init="iterable",
-        init_desc="iterable",
-        str_desc="its specific string representation with chevrons figuring cycling",
-        str_out="<['a', 'b', 'c', 'd', 'e']>",
-    )
 
 
 class CyclicStr(AbstractCyclic, str):
+    """An immutable cyclic sequence based on built-in class *str*.
+
+    See help of module cyclic_sequences for advanced description.
+    
+    Usage::
+        >>> foo = CyclicStr('abcde')
+        >>> foo
+        CyclicStr('abcde')
+        >>> print(foo)
+        abcde
+        >>> foo[3:7]
+        'deab'
+        >>> foo.with_first('d')
+        CyclicStr('deabc')
+    
+    
+    """
+
     _girf = "".join
-    __doc__ = cyclic_doc.format(
-        classname="CyclicStr",
-        classparent="string",
-        A="'",
-        M="",
-        Z="'",
-        empty="''",
-        init="object",
-        init_desc="object using object.__str__()",
-        str_desc="classic string representation",
-        str_out="abcde",
-    )
 
     def __str__(self):
         return str.__str__(self)
