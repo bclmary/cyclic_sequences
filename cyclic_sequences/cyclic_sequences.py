@@ -15,8 +15,11 @@ negative indexes) if the index is higher than the length of the sequence::
           ▲                           │
           └───────────────────────────┘
 
+ Iterating over a cyclic sequence is bounded (no infinite loop).
 
-.. note:: Based on a Chris Lawlor forum publication
+
+.. note:: This module is based on a Chris Lawlor forum publication.
+
 
 Content
 =======
@@ -32,6 +35,7 @@ Content
 :CyclicStr:
     Class object.
     An immutable cyclic sequence based on built-in class *str*.
+
 
 Examples
 ========
@@ -227,8 +231,9 @@ class AbstractCyclic(object):
 
     def turned(self, step=1):
         """
-        foo.turned(step) -> new instance with first element the one from 
-        foo at index 'step'.
+        foo.turned(step) -> new instance
+        New instance of 'foo' with all elements shifted of given step.
+        (default is 1 unit onward).
         """
         try:
             step = int(step) % self.__len__()
@@ -242,9 +247,9 @@ class AbstractCyclic(object):
 
     def with_first(self, elt):
         """
-        foo.with_first(elt) -> new instance with first occurence of 'elt' at first
-        position.
-        Raises ValueError if 'elt' is not present.
+        foo.with_first(elt) -> new instance
+        New instance of 'foo' with first occurence of 'elt' at first position.
+        Raises ValueError if 'elt' is not present.        
         """
         try:
             index = self.index(elt)
@@ -264,9 +269,9 @@ class AbstractMutableCyclic(AbstractCyclic):
 
     def turn(self, step=1):
         """
-        foo.turn(step) -> None – change elements indexes of given step
-        (move higher index to lower index with poisitive value).
-        Equivalent to set at first position element at index 'step'.
+        foo.turn(step) -> None
+        Change all elements indexes of given step (default is 1 unit onward)
+        Equivalent to set at first position the element at index 'step'.
         """
         try:
             step = int(step) % self.__len__()
@@ -280,8 +285,8 @@ class AbstractMutableCyclic(AbstractCyclic):
 
     def set_first(self, elt):
         """
-        foo.set_first(elt) -> None – set first occurence of 'elt' at first
-        position.
+        foo.set_first(elt) -> None
+        Set first occurence of 'elt' at first position.
         Raises ValueError if 'elt' is not present.
         """
         try:

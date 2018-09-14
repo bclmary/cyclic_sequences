@@ -18,6 +18,11 @@ negative indexes) if the index is higher than the length of the sequence::
           ▲                           │
           └───────────────────────────┘
 
+Iterating over a cyclic sequence is bounded (no infinite loop).
+
+
+.. note:: This module is based on a Chris Lawlor forum publication.
+
 
 Content
 =======
