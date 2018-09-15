@@ -45,4 +45,5 @@ from cyclic_sequences.cyclic_sequences import CyclicList
 __all__ = [
     "CyclicTuple",
     "CyclicList",
+    "CyclicStr",
     ]
