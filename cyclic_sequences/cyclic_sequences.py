@@ -201,7 +201,7 @@ class AbstractCyclic(object):
             start = key.start if key.start is not None else 0
             stop = key.stop if key.stop is not None else N
             step = 1 if key.step is None else key.step
-            sim_start = self.index(self[start])
+            true_start = self.index(self[start])
             if step > 0:
                 direction = lambda x: x
                 length = stop - start
@@ -209,13 +209,13 @@ class AbstractCyclic(object):
                 direction = reversed
                 length = start - stop
                 step = abs(step)
-                sim_start = N - sim_start - 1  # Reverse index
+                true_start = N - true_start - 1  # Reverse index
             else:
                 raise ValueError("slice step cannot be zero")
             if length > 0:
                 # Redifine start and stop with equivalent and simpler indexes.
-                start = sim_start
-                stop = sim_start + length
+                start = true_start
+                stop = true_start + length
                 cyclic_self = itertools.cycle(direction(self))
                 iterator = ((i, next(cyclic_self)) for i in range(stop))
                 return self._girf(
@@ -243,7 +243,7 @@ class AbstractCyclic(object):
                     self.__class__.__name, type(step)
                 )
             )
-        return self._get_first_using_index(step)
+        return self._new_instance_with_first_setted_using_index(step)
 
     def with_first(self, elt):
         """
@@ -255,9 +255,9 @@ class AbstractCyclic(object):
             index = self.index(elt)
         except ValueError:
             raise ValueError("{} is not in CyclicList".format(elt))
-        return self._get_first_using_index(index)
+        return self._new_instance_with_first_setted_using_index(index)
 
-    def _get_first_using_index(self, index):
+    def _new_instance_with_first_setted_using_index(self, index):
         return self.__class__(
             super().__getitem__(slice(index, None, None))
             + super().__getitem__(slice(None, index, None))
