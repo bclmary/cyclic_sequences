@@ -1,7 +1,7 @@
 Cyclic-Sequences
 ################
 
-Sequence type objects with cyclic indexing::
+Sequence type objects with cyclic indexing.
 
 Description
 ===========
@@ -45,31 +45,37 @@ Immutable class methods
 
 :with_first:
     foo.with_first(elt) -> new instance
+
     New instance of 'foo' with first occurence of 'elt' at first position.
     Raises ValueError if 'elt' is not present.
 
 :turned:
     foo.turned(step) -> new instance
-    New instance of 'foo' with all elements shifted of given step.
-    (default is 1 unit onward).
+
+    New instance of 'foo' with all elements shifted of given step (default is 1 unit onward).
 
 
 Mutable class methods
 ---------------------
 
 :set_first:
-    foo.set_first(elt) -> None
+    foo.set_first(elt) -> None 
+
     Set first occurence of 'elt' at first position.
     Raises ValueError if 'elt' is not present.
 
 :turn:
     foo.turn(step) -> None
+
     Change all elements indexes of given step (default is 1 unit onward)
     Equivalent to set at first position the element at index 'step'.
 
 
 Examples
 ========
+
+Indexing
+--------
 
 The following examples are using CyclicList class for demonstration. CyclicTuple and CyclicStr classes get similar behaviours.
 
@@ -100,7 +106,10 @@ The following examples are using CyclicList class for demonstration. CyclicTuple
     >>> foo[-9]
     'b'
 
-- Slices work and return list objects::
+Slicing
+-------
+
+- **Slices** work and **return list objects**::
 
     >>> foo[1:4]
     ['b', 'c', 'd']
@@ -149,12 +158,8 @@ The following examples are using CyclicList class for demonstration. CyclicTuple
     >>> foo[11:5]
     []
 
-Edge effects:
-
-- Indexing an empty CyclicList returns an IndexError.
-
-- Indexing on a unique element returns always this element.
-
+Methods
+-------
 
 First element can be played with using specific methods:
 
@@ -192,3 +197,15 @@ First element can be played with using specific methods:
     >>> foo.turn(11)
     >>> foo
     CyclicList(['b', 'c', 'd', 'e', 'a'])
+
+
+Notable edge effects
+====================
+
+All following properties are valid for CyclicTuple, CyclicList and CyclicStr, named below cyclic classes.
+
+- Indexing an empty cyclic class returns an IndexError.
+
+- Indexing on a unique element returns always this element.
+
+- Slicing a cyclic class returns the base class (ie slicing a CyclicStr returns a string).
