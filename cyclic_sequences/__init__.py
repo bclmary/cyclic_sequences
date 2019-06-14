@@ -40,7 +40,7 @@ Indexing or slicing are cyclic; iterating is bounded.
 
 from cyclic_sequences.cyclic_sequences import CyclicTuple
 from cyclic_sequences.cyclic_sequences import CyclicList
-
+from cyclic_sequences.cyclic_sequences import CyclicStr
 
 __all__ = [
     "CyclicTuple",
